@@ -25,44 +25,33 @@ package org.gjt.sp.jedit.textarea;
 
 //{{{ Imports
 
+import javafx.scene.shape.Path;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.gjt.sp.jedit.Abbrevs;
-import org.gjt.sp.jedit.Buffer;
-import org.gjt.sp.jedit.EditBus;
+import org.gjt.sp.jedit.*;
 import org.gjt.sp.jedit.EditBus.EBHandler;
-import org.gjt.sp.jedit.GUIUtilities;
-import org.gjt.sp.jedit.Macros;
-import org.gjt.sp.jedit.ServiceManager;
-import org.gjt.sp.jedit.TextUtilities;
-import org.gjt.sp.jedit.View;
-import org.gjt.sp.jedit.jEdit;
 import org.gjt.sp.jedit.msg.PositionChanging;
 import org.gjt.sp.jedit.msg.PropertiesChanged;
 import org.gjt.sp.jedit.options.GlobalOptions;
 import org.gjt.sp.util.Log;
-import org.log.LogCharacterKey;
-import org.log.LogEventTypes;
-import org.log.LogItem;
-import org.log.LogSelection;
-import org.log.LogServiceKey;
+import org.log.*;
 import org.log.parse.ParseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 //}}}
 
@@ -85,6 +74,7 @@ public class JEditTextArea extends TextArea
 	private ObjectMapper mapper = new ObjectMapper();
 	private List<LogItem> items = new ArrayList<LogItem>();
 	private LogItem current;
+    private LogItem previous = null;
 	private boolean hasSelection;
 
 	//{{{ JEditTextArea constructor
@@ -214,25 +204,61 @@ public class JEditTextArea extends TextArea
 		}
 	}
 
-	public void compileBuffer(final Buffer toCompile) {
-		toCompile.save(getView(), toCompile.getPath());
-		final File output = Paths.get("out", "compileOut").toFile();
-		String path = Paths.get("out").toAbsolutePath().toString() + "/" + toCompile.getName();
-		toCompile.save(getView(), path);
-		ArrayList<String> commands = new ArrayList<>();
-		commands.add(jEdit.getProperty("java.compiler"));
-		commands.add(path);
-		try {
-			final Process process = new ProcessBuilder(commands).redirectOutput(output).start();
-			process.waitFor();
-			JOptionPane.showMessageDialog(this, getContentOfFile(output), "Output of compilation", JOptionPane.INFORMATION_MESSAGE);
-			Files.deleteIfExists(Paths.get("out", "compileOut"));
-		} catch (IOException e) {
-			JOptionPane.showMessageDialog(this, "Cannot open file for output of compiler");
-		} catch (InterruptedException e) {
-			JOptionPane.showMessageDialog(this, "Compiling was interrupted");
-		}
-	}
+    public void compileBuffer(final Buffer toCompile) throws IOException {
+        try {
+            log.info(mapper.writeValueAsString(new LogCompile()));
+        } catch (Exception e) {
+            Log.log(Log.ERROR, null, "Cannot write copy action to json", e);
+        }
+        if (toCompile.isDirty()) {
+            toCompile.save(getView(), toCompile.getPath());
+        }
+
+        final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
+        final File outputFinal = Paths.get("out", "compileOut").toFile();
+        final File errorFinal = Paths.get("out", "compileError").toFile();
+
+        try {
+            outputFinal.createNewFile();
+            errorFinal.createNewFile();
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this, "Невозможно создать файл");
+        }
+
+        final File output = Paths.get("out", "compileOut" + format.format(Calendar.getInstance().getTime())).toFile();
+        final File error = Paths.get("out", "compileError" + format.format(Calendar.getInstance().getTime())).toFile();
+        ArrayList<String> commands = new ArrayList<>();
+        commands.add(jEdit.getProperty("java.compiler"));
+        commands.add(toCompile.getName());
+        try {
+            Files.copy(Paths.get(toCompile.getPath()), Paths.get("out", toCompile.getName()), StandardCopyOption.REPLACE_EXISTING);
+            final Process process = new ProcessBuilder(commands).directory(Paths.get("out").toFile()).redirectOutput(output).redirectError(error).start();
+            int exitCode = process.waitFor();
+            if (exitCode != 0) {
+                JOptionPane.showMessageDialog(this, getContentOfFile(error), "Результат компиляции", JOptionPane.ERROR_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this, "Компиляция прошла успешно", "Результат компиляции", JOptionPane.INFORMATION_MESSAGE);
+            }
+            appendToFile(output, outputFinal, format);
+            appendToFile(error, errorFinal, format);
+            Files.deleteIfExists(output.toPath());
+            Files.deleteIfExists(error.toPath());
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this, "Cannot open file for output of compiler");
+        } catch (InterruptedException e) {
+            JOptionPane.showMessageDialog(this, "Compiling was interrupted");
+        }
+    }
+
+    private void appendToFile(final File outputFile, final File inputFile, SimpleDateFormat format) throws IOException {
+        FileWriter fw = new FileWriter(inputFile, true);
+        String content = getContentOfFile(outputFile);
+        fw.write(format.format(Calendar.getInstance().getTime()));
+        fw.write("\n");
+        fw.write(content);
+        fw.write("\n\n");
+        fw.close();
+    }
 
 	private String getContentOfFile(final File file) throws IOException {
 		BufferedReader br = Files.newBufferedReader(file.toPath(), Charset.defaultCharset());
@@ -240,47 +266,106 @@ public class JEditTextArea extends TextArea
 		String s;
 		while ((s = br.readLine()) != null) {
 			res.append(s);
+            res.append("\n");
 		}
 		br.close();
 		return res.toString();
 	}
 
-	public void runBuffer(final Buffer toRun) throws IOException {
-		final File output = Paths.get("out", "runOut").toFile();
-		ArrayList<String> commands = new ArrayList<>();
-		commands.add(jEdit.getProperty("java.start"));
-		commands.add(toRun.getName().replace(".java", ""));
-		try {
-			final Process process = new ProcessBuilder(commands).directory(Paths.get("out").toFile()).redirectOutput(output).start();
-			process.waitFor();
-			JOptionPane.showMessageDialog(this, getContentOfFile(output), "Output of run:", JOptionPane.INFORMATION_MESSAGE);
-			Files.deleteIfExists(Paths.get("out", "runOut"));
-		} catch (IOException e) {
-			JOptionPane.showMessageDialog(this, "Cannot open file for output of compiler");
-		} catch (InterruptedException e) {
-			JOptionPane.showMessageDialog(this, "Run was interrupted");
-		}
-	}
+    public void runBuffer(final Buffer toRun) {
+        try {
+            log.info(mapper.writeValueAsString(new LogRun()));
+        } catch (Exception e) {
+            Log.log(Log.ERROR, null, "Cannot write copy action to json", e);
+        }
 
-	public void nextAction() {
-		log.info("Current in nextAction(): " + current);
-		if (current != null) {
-			log.info("Processing " + current);
-			try {
-				pressKey(current);
-				log.info("Key pressed");
-			} catch (AWTException e) {
-			 	log.info("Cannot instantiate robot");
-			}
-			int nextIndex = items.indexOf(current) + 1;
-			if (items.size() > nextIndex) {
-				current = items.get(nextIndex);
-				log.info("Next item is " + current);
-			} else {
-				current = null;
-			}
-		}
-	}
+        final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
+        final File outputFinal = Paths.get("out", "runOut").toFile();
+        final File errorFinal = Paths.get("out", "runError").toFile();
+
+        try {
+            outputFinal.createNewFile();
+            errorFinal.createNewFile();
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this, "Невозможно создать файл");
+        }
+
+        final File output = Paths.get("out", "runOut" + format.format(Calendar.getInstance().getTime())).toFile();
+        final File error = Paths.get("out", "runError" + format.format(Calendar.getInstance().getTime())).toFile();
+        ArrayList<String> commands = new ArrayList<>();
+        commands.add(jEdit.getProperty("java.start"));
+        commands.add(toRun.getName().replace(".java", ""));
+
+        try {
+            final Process process = new ProcessBuilder(commands).directory(Paths.get("out").toFile()).redirectOutput(output).redirectError(error).start();
+            int exitCode = process.waitFor();
+            if (exitCode != 0) {
+                JOptionPane.showMessageDialog(this, getContentOfFile(error), "Результат запуска", JOptionPane.ERROR_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this, getContentOfFile(output), "Результат запуска", JOptionPane.INFORMATION_MESSAGE);
+            }
+            appendToFile(output, outputFinal, format);
+            appendToFile(error, errorFinal, format);
+            Files.deleteIfExists(output.toPath());
+            Files.deleteIfExists(error.toPath());
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this, "Cannot open file for output of compiler");
+        } catch (InterruptedException e) {
+            JOptionPane.showMessageDialog(this, "Run was interrupted");
+        }
+    }
+
+    public void nextAction() {
+        log.info("Current in nextAction(): " + current);
+        if (current != null) {
+            try {
+                processItem(current);
+            } catch (AWTException e) {
+                log.info("Cannot instantiate robot");
+            }
+            int nextIndex = items.indexOf(current) + 1;
+            if (items.size() > nextIndex) {
+                previous = current;
+                current = items.get(nextIndex);
+            } else {
+                current = null;
+            }
+        }
+    }
+
+    private void processItem(LogItem item) throws AWTException {
+        LogEventTypes type = item.getType();
+        switch (type) {
+            case SERVICE_KEY:
+                pressServiceKey((LogServiceKey)item);
+                break;
+            case CHARACTER_KEY:
+                pressCharKey((LogCharacterKey)item);
+                break;
+            case SELECTION:
+                hasSelection = true;
+                addSelection((LogSelection)item);
+                break;
+            case SELECTION_CLEAR:
+                setCaretPosition(0);
+                hasSelection = false;
+                break;
+            case PASTE_ACTION:
+                if (getSelection() == null) {
+                    setCaretPosition(((LogPaste)item).getPosition());
+                }
+                Registers.paste(this, '$', false);
+                break;
+            case CUT_ACTION:
+                Registers.cut(this,'$');
+                break;
+            case COPY_ACTION:
+                Registers.copy(this,'$');
+                break;
+            default:
+                JOptionPane.showMessageDialog(this, item.getStringForm(), "Current action:", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
 
 	private void pressKey(LogItem item) throws AWTException {
 		LogEventTypes type = item.getType();
@@ -337,16 +422,22 @@ public class JEditTextArea extends TextArea
 		robot.keyRelease(item.getKeyCode());
 	}
 
-	private int getCaretForServiceKey(LogServiceKey item)
-	{
-		if (item.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
-			return item.getPosition() + 1;
-		} else if (buffer.getLength() < item.getPosition()) {
-			return buffer.getLength();
-		} else {
-			return item.getPosition();
-		}
-	}
+    private int getCaretForServiceKey(LogServiceKey item)
+    {
+        if (item.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
+            return item.getPosition() + 1;
+        } else if (buffer.getLength() < item.getPosition()) {
+            return buffer.getLength();
+        } else if (item.getKeyCode() == KeyEvent.VK_ENTER) {
+            if (previous != null && previous instanceof LogKey) {
+                return ((LogKey) previous).getPosition();
+            } else {
+                return item.getKeyCode() - 1;
+            }
+        } else {
+            return item.getPosition();
+        }
+    }
 
 	private boolean openLogFile() throws Exception {
 		JFileChooser chooser = new JFileChooser(System.getProperty("user.home"));

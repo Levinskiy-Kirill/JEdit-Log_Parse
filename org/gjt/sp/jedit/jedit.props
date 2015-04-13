@@ -529,5 +529,5 @@ available.lang=en de fr ja cs ru zh
 lang.usedefaultlocale=true
 lang.current=en
 
-java.compiler=/usr/lib/jvm/java-7-oracle/bin/javac
-java.start=/usr/lib/jvm/java-7-oracle/bin/java
+java.compiler=C:/Program Files/Java/jdk1.8.0_20/bin/javac
+java.start=C:/Program Files/Java/jdk1.8.0_20/bin/java
