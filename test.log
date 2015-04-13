@@ -1,0 +1,79 @@
+
+{"timestamp":1400612541758,"type":"SELECTION","start":0,"end":72,"startLine":0,"endLine":4,"stringForm":"Selection from 0 to 72. 1400612541758","selectionLength":72}
+{"timestamp":1400612545338,"type":"SERVICE_KEY","position":0,"mask":0,"keyCode":8,"stringForm":"Service key with key code 8. 1400612545338"}
+{"timestamp":1400612547026,"type":"SAVE_ACTION","stringForm":"Saving file at 1400612547026"}
+{"timestamp":1400612548754,"type":"CHARACTER_KEY","position":0,"mask":0,"keyCode":80,"keyChar":"p","stringForm":"Character key with character p and keycode 80. 1400612548754"}
+{"timestamp":1400612548987,"type":"CHARACTER_KEY","position":1,"mask":0,"keyCode":85,"keyChar":"u","stringForm":"Character key with character u and keycode 85. 1400612548987"}
+{"timestamp":1400612549138,"type":"CHARACTER_KEY","position":2,"mask":0,"keyCode":66,"keyChar":"b","stringForm":"Character key with character b and keycode 66. 1400612549138"}
+{"timestamp":1400612549274,"type":"CHARACTER_KEY","position":3,"mask":0,"keyCode":76,"keyChar":"l","stringForm":"Character key with character l and keycode 76. 1400612549274"}
+{"timestamp":1400612549490,"type":"CHARACTER_KEY","position":4,"mask":0,"keyCode":73,"keyChar":"i","stringForm":"Character key with character i and keycode 73. 1400612549490"}
+{"timestamp":1400612549674,"type":"CHARACTER_KEY","position":5,"mask":0,"keyCode":67,"keyChar":"c","stringForm":"Character key with character c and keycode 67. 1400612549674"}
+{"timestamp":1400612549826,"type":"CHARACTER_KEY","position":6,"mask":0,"keyCode":32,"keyChar":" ","stringForm":"Character key with character   and keycode 32. 1400612549826"}
+{"timestamp":1400612550354,"type":"CHARACTER_KEY","position":7,"mask":0,"keyCode":83,"keyChar":"s","stringForm":"Character key with character s and keycode 83. 1400612550354"}
+{"timestamp":1400612550562,"type":"CHARACTER_KEY","position":8,"mask":0,"keyCode":84,"keyChar":"t","stringForm":"Character key with character t and keycode 84. 1400612550562"}
+{"timestamp":1400612551123,"type":"SERVICE_KEY","position":8,"mask":0,"keyCode":8,"stringForm":"Service key with key code 8. 1400612551123"}
+{"timestamp":1400612551331,"type":"SERVICE_KEY","position":7,"mask":0,"keyCode":8,"stringForm":"Service key with key code 8. 1400612551331"}
+{"timestamp":1400612551499,"type":"CHARACTER_KEY","position":7,"mask":0,"keyCode":67,"keyChar":"c","stringForm":"Character key with character c and keycode 67. 1400612551499"}
+{"timestamp":1400612551595,"type":"CHARACTER_KEY","position":8,"mask":0,"keyCode":76,"keyChar":"l","stringForm":"Character key with character l and keycode 76. 1400612551595"}
+{"timestamp":1400612551723,"type":"CHARACTER_KEY","position":9,"mask":0,"keyCode":65,"keyChar":"a","stringForm":"Character key with character a and keycode 65. 1400612551723"}
+{"timestamp":1400612551851,"type":"CHARACTER_KEY","position":10,"mask":0,"keyCode":83,"keyChar":"s","stringForm":"Character key with character s and keycode 83. 1400612551851"}
+{"timestamp":1400612552035,"type":"CHARACTER_KEY","position":11,"mask":0,"keyCode":83,"keyChar":"s","stringForm":"Character key with character s and keycode 83. 1400612552035"}
+{"timestamp":1400612552427,"type":"CHARACTER_KEY","position":12,"mask":0,"keyCode":32,"keyChar":" ","stringForm":"Character key with character   and keycode 32. 1400612552427"}
+{"timestamp":1400612553523,"type":"CHARACTER_KEY","position":13,"mask":1,"keyCode":84,"keyChar":"T","stringForm":"Character key with character T and keycode 84. 1400612553523"}
+{"timestamp":1400612553715,"type":"CHARACTER_KEY","position":14,"mask":0,"keyCode":69,"keyChar":"e","stringForm":"Character key with character e and keycode 69. 1400612553715"}
+{"timestamp":1400612553979,"type":"CHARACTER_KEY","position":15,"mask":0,"keyCode":83,"keyChar":"s","stringForm":"Character key with character s and keycode 83. 1400612553979"}
+{"timestamp":1400612554427,"type":"CHARACTER_KEY","position":16,"mask":0,"keyCode":84,"keyChar":"t","stringForm":"Character key with character t and keycode 84. 1400612554427"}
+{"timestamp":1400612555019,"type":"CHARACTER_KEY","position":17,"mask":0,"keyCode":32,"keyChar":" ","stringForm":"Character key with character   and keycode 32. 1400612555019"}
+{"timestamp":1400612555227,"type":"CHARACTER_KEY","position":18,"mask":1,"keyCode":91,"keyChar":"{","stringForm":"Character key with character { and keycode 91. 1400612555227"}
+{"timestamp":1400612555659,"type":"SERVICE_KEY","position":21,"mask":0,"keyCode":10,"stringForm":"Service key with key code 10. 1400612555659"}
+{"timestamp":1400612557539,"type":"CHARACTER_KEY","position":21,"mask":0,"keyCode":83,"keyChar":"s","stringForm":"Character key with character s and keycode 83. 1400612557539"}
+{"timestamp":1400612557786,"type":"CHARACTER_KEY","position":22,"mask":0,"keyCode":84,"keyChar":"t","stringForm":"Character key with character t and keycode 84. 1400612557786"}
+{"timestamp":1400612558202,"type":"CHARACTER_KEY","position":23,"mask":0,"keyCode":65,"keyChar":"a","stringForm":"Character key with character a and keycode 65. 1400612558202"}
+{"timestamp":1400612558363,"type":"CHARACTER_KEY","position":24,"mask":0,"keyCode":84,"keyChar":"t","stringForm":"Character key with character t and keycode 84. 1400612558363"}
+{"timestamp":1400612558586,"type":"CHARACTER_KEY","position":25,"mask":0,"keyCode":73,"keyChar":"i","stringForm":"Character key with character i and keycode 73. 1400612558586"}
+{"timestamp":1400612558914,"type":"CHARACTER_KEY","position":26,"mask":0,"keyCode":67,"keyChar":"c","stringForm":"Character key with character c and keycode 67. 1400612558914"}
+{"timestamp":1400612559170,"type":"CHARACTER_KEY","position":27,"mask":0,"keyCode":32,"keyChar":" ","stringForm":"Character key with character   and keycode 32. 1400612559170"}
+{"timestamp":1400612559450,"type":"CHARACTER_KEY","position":28,"mask":1,"keyCode":91,"keyChar":"{","stringForm":"Character key with character { and keycode 91. 1400612559450"}
+{"timestamp":1400612560050,"type":"SERVICE_KEY","position":32,"mask":0,"keyCode":10,"stringForm":"Service key with key code 10. 1400612560050"}
+{"timestamp":1400612561554,"type":"CHARACTER_KEY","position":32,"mask":1,"keyCode":83,"keyChar":"S","stringForm":"Character key with character S and keycode 83. 1400612561554"}
+{"timestamp":1400612561746,"type":"CHARACTER_KEY","position":33,"mask":0,"keyCode":89,"keyChar":"y","stringForm":"Character key with character y and keycode 89. 1400612561746"}
+{"timestamp":1400612561906,"type":"CHARACTER_KEY","position":34,"mask":0,"keyCode":83,"keyChar":"s","stringForm":"Character key with character s and keycode 83. 1400612561906"}
+{"timestamp":1400612562082,"type":"CHARACTER_KEY","position":35,"mask":0,"keyCode":84,"keyChar":"t","stringForm":"Character key with character t and keycode 84. 1400612562082"}
+{"timestamp":1400612562170,"type":"CHARACTER_KEY","position":36,"mask":0,"keyCode":69,"keyChar":"e","stringForm":"Character key with character e and keycode 69. 1400612562170"}
+{"timestamp":1400612562442,"type":"CHARACTER_KEY","position":37,"mask":0,"keyCode":77,"keyChar":"m","stringForm":"Character key with character m and keycode 77. 1400612562442"}
+{"timestamp":1400612562730,"type":"CHARACTER_KEY","position":38,"mask":0,"keyCode":46,"keyChar":".","stringForm":"Character key with character . and keycode 46. 1400612562730"}
+{"timestamp":1400612563042,"type":"CHARACTER_KEY","position":39,"mask":0,"keyCode":79,"keyChar":"o","stringForm":"Character key with character o and keycode 79. 1400612563042"}
+{"timestamp":1400612563290,"type":"CHARACTER_KEY","position":40,"mask":0,"keyCode":85,"keyChar":"u","stringForm":"Character key with character u and keycode 85. 1400612563290"}
+{"timestamp":1400612563458,"type":"CHARACTER_KEY","position":41,"mask":0,"keyCode":84,"keyChar":"t","stringForm":"Character key with character t and keycode 84. 1400612563458"}
+{"timestamp":1400612563667,"type":"CHARACTER_KEY","position":42,"mask":0,"keyCode":46,"keyChar":".","stringForm":"Character key with character . and keycode 46. 1400612563667"}
+{"timestamp":1400612563930,"type":"CHARACTER_KEY","position":43,"mask":0,"keyCode":80,"keyChar":"p","stringForm":"Character key with character p and keycode 80. 1400612563930"}
+{"timestamp":1400612564154,"type":"CHARACTER_KEY","position":44,"mask":0,"keyCode":82,"keyChar":"r","stringForm":"Character key with character r and keycode 82. 1400612564154"}
+{"timestamp":1400612564250,"type":"CHARACTER_KEY","position":45,"mask":0,"keyCode":73,"keyChar":"i","stringForm":"Character key with character i and keycode 73. 1400612564250"}
+{"timestamp":1400612564498,"type":"CHARACTER_KEY","position":46,"mask":0,"keyCode":78,"keyChar":"n","stringForm":"Character key with character n and keycode 78. 1400612564498"}
+{"timestamp":1400612564786,"type":"CHARACTER_KEY","position":47,"mask":0,"keyCode":84,"keyChar":"t","stringForm":"Character key with character t and keycode 84. 1400612564786"}
+{"timestamp":1400612565194,"type":"CHARACTER_KEY","position":48,"mask":0,"keyCode":76,"keyChar":"l","stringForm":"Character key with character l and keycode 76. 1400612565194"}
+{"timestamp":1400612565442,"type":"CHARACTER_KEY","position":49,"mask":0,"keyCode":78,"keyChar":"n","stringForm":"Character key with character n and keycode 78. 1400612565442"}
+{"timestamp":1400612565946,"type":"CHARACTER_KEY","position":50,"mask":1,"keyCode":57,"keyChar":"(","stringForm":"Character key with character ( and keycode 57. 1400612565946"}
+{"timestamp":1400612566338,"type":"CHARACTER_KEY","position":51,"mask":1,"keyCode":222,"keyChar":"\"","stringForm":"Character key with character \" and keycode 222. 1400612566338"}
+{"timestamp":1400612567490,"type":"CHARACTER_KEY","position":52,"mask":1,"keyCode":72,"keyChar":"H","stringForm":"Character key with character H and keycode 72. 1400612567490"}
+{"timestamp":1400612567770,"type":"CHARACTER_KEY","position":53,"mask":0,"keyCode":69,"keyChar":"e","stringForm":"Character key with character e and keycode 69. 1400612567770"}
+{"timestamp":1400612567890,"type":"CHARACTER_KEY","position":54,"mask":0,"keyCode":76,"keyChar":"l","stringForm":"Character key with character l and keycode 76. 1400612567890"}
+{"timestamp":1400612568042,"type":"CHARACTER_KEY","position":55,"mask":0,"keyCode":76,"keyChar":"l","stringForm":"Character key with character l and keycode 76. 1400612568042"}
+{"timestamp":1400612568243,"type":"CHARACTER_KEY","position":56,"mask":0,"keyCode":79,"keyChar":"o","stringForm":"Character key with character o and keycode 79. 1400612568243"}
+{"timestamp":1400612568371,"type":"CHARACTER_KEY","position":57,"mask":0,"keyCode":87,"keyChar":"w","stringForm":"Character key with character w and keycode 87. 1400612568371"}
+{"timestamp":1400612569163,"type":"SERVICE_KEY","position":57,"mask":0,"keyCode":8,"stringForm":"Service key with key code 8. 1400612569163"}
+{"timestamp":1400612569283,"type":"CHARACTER_KEY","position":57,"mask":0,"keyCode":32,"keyChar":" ","stringForm":"Character key with character   and keycode 32. 1400612569283"}
+{"timestamp":1400612569707,"type":"CHARACTER_KEY","position":58,"mask":1,"keyCode":87,"keyChar":"W","stringForm":"Character key with character W and keycode 87. 1400612569707"}
+{"timestamp":1400612570355,"type":"CHARACTER_KEY","position":59,"mask":0,"keyCode":79,"keyChar":"o","stringForm":"Character key with character o and keycode 79. 1400612570355"}
+{"timestamp":1400612570475,"type":"CHARACTER_KEY","position":60,"mask":0,"keyCode":82,"keyChar":"r","stringForm":"Character key with character r and keycode 82. 1400612570475"}
+{"timestamp":1400612570699,"type":"CHARACTER_KEY","position":61,"mask":0,"keyCode":76,"keyChar":"l","stringForm":"Character key with character l and keycode 76. 1400612570699"}
+{"timestamp":1400612570916,"type":"CHARACTER_KEY","position":62,"mask":0,"keyCode":68,"keyChar":"d","stringForm":"Character key with character d and keycode 68. 1400612570916"}
+{"timestamp":1400612571515,"type":"CHARACTER_KEY","position":63,"mask":1,"keyCode":49,"keyChar":"!","stringForm":"Character key with character ! and keycode 49. 1400612571515"}
+{"timestamp":1400612571915,"type":"CHARACTER_KEY","position":64,"mask":1,"keyCode":222,"keyChar":"\"","stringForm":"Character key with character \" and keycode 222. 1400612571915"}
+{"timestamp":1400612572699,"type":"CHARACTER_KEY","position":65,"mask":1,"keyCode":48,"keyChar":")","stringForm":"Character key with character ) and keycode 48. 1400612572699"}
+{"timestamp":1400612573075,"type":"CHARACTER_KEY","position":66,"mask":0,"keyCode":59,"keyChar":";","stringForm":"Character key with character ; and keycode 59. 1400612573075"}
+{"timestamp":1400612573611,"type":"SERVICE_KEY","position":70,"mask":0,"keyCode":10,"stringForm":"Service key with key code 10. 1400612573611"}
+{"timestamp":1400612573827,"type":"CHARACTER_KEY","position":70,"mask":1,"keyCode":93,"keyChar":"}","stringForm":"Character key with character } and keycode 93. 1400612573827"}
+{"timestamp":1400612574427,"type":"SERVICE_KEY","position":72,"mask":0,"keyCode":10,"stringForm":"Service key with key code 10. 1400612574427"}
+{"timestamp":1400612574643,"type":"CHARACTER_KEY","position":72,"mask":1,"keyCode":93,"keyChar":"}","stringForm":"Character key with character } and keycode 93. 1400612574643"}
+{"timestamp":1400612578172,"type":"SAVE_ACTION","stringForm":"Saving file at 1400612578172"}

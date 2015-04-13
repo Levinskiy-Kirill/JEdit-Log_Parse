@@ -1,0 +1,98 @@
+jEdit 5.2 version history
+       (changes since jEdit 5.1.0)
+:encoding=UTF-8:
+
+{{{ Version 5.2pre1
+
+Thanks to Björn "Vampire" Kautler, Matthieu Casanova, Dale Anson, Thomas Meyer, 
+Patrick Eibl, László Schmidt, Zsombor Franczia, Bence Pintér Makarius, Benjamin Zengin, 
+Yihua Zhang, Alan Ezust and Eric Le Lay for contributing to this release.
+
+{{{ Bug Fixes
+
+- Fix for #3843: Russian localization breaks Search dialog 
+
+- Fixed Whole word search (#3614975, patch #3615185 - Benjamin Zengin)
+
+- Fixed the systray not added on EDT thread (Matthieu Casanova)
+
+- Fix the integration with Unity and other Linux Desktop Environments,
+  broken by Patch #3582760. (Björn "Vampire" Kautler)
+
+- Reload optionally dependent plugins when a plugin is unloaded.
+  (#3614456 - Dale Anson)
+
+- Applied patch #3615045 (Makarius), plus some additional cleanup of setting 
+  the look and feel (Dale Anson)
+
+- Fixed a bug in pluginmanager: transitive deps not installed when filtering
+  (#3614985 - Eric Le Lay)
+
+- Fix java installer bug: Installing from jedit5.1.0install.jar failure
+   (#3837 - Eric Le Lay)
+}}}
+{{{ API Changes
+
+- StandardUtilities.objectsEqual() is deprecated as Objects.equals() does the
+  same job in Java 7 (Matthieu Casanova)
+
+- jEdit now depends on Java 1.7
+
+- New method: VFSFile.getModified() which allows sorting by date in the FSB
+  for other VFSs (Patch #3615214 Yihua Zhang)
+
+- GUIUtilities.getShortcutLabel() has a second boolean argument to specify
+  whether platform modifier symbols are desired or not. (#3615046 Makarius) 
+
+- Removed deprecated (ambiguous) overloads of IOUtilities.closeQuietly().
+
+- New status "REMOVED" added to PluginUpdate message.
+
+}}}
+{{{ UI improvements
+
+- Support for shortcuts to "copy" the error in Error widget (Matthieu Casanova)
+
+- The bufferSwitcher now supports Drag&Drop (patch #3615177 - Yihua Zhang)
+
+- Added "loading" icon for task status bar widget (request #3615068 -
+  Matthieu Casanova)
+
+- The TextArea will not scroll anymore when dragging files on jEdit
+  (Matthieu Casanova)
+
+- EnhancedDialog instances (Search/Replace, Options, Open) now can be closed
+  using a single-key close-buffer.shortcut. (#3613007, #3588892 - László Schmidt,
+  Zsombor Franczia, Bence Pintér)
+
+- Plugin dependencies are shown in the plugin manager details pane for all three
+  tabs. (#3614465 - Dale Anson)
+
+- Increased the scrolling speed in option pane (Matthieu Casanova)
+
+- In plugin manager's install panel plugin dependencies are unchecked
+  if they are not required (Eric Le Lay)
+}}}
+{{{ Editing
+
+- Patch to toggle word completion of words with digits.
+  (#3614607, Patrick Eibl)
+
+}}}
+{{{ Miscellaneous
+
+- MiscUtilities.expandVariables() converts from Windows to Linux-style paths
+  when necessary (the reverse was already true). (Alan Ezust)
+
+- New macros: Go To Offset, Reverse Selection (#3614563, #3614564 Thomas Meyer)
+
+- Removed some no longer needed pre-Java7 MacOSX key handling workaround code 
+    (#3615043, #3615044 Makarius, Alan Ezust) 
+
+}}}
+
+}}}
+
+jEdit buffer local properties:
+:maxLineLen=90:wrap=hard:autoIndent=simple:noTabs=true:indentSize=2:tabSize=2:
+:folding=explicit:collapseFolds=2:

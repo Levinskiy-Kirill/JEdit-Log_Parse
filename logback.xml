@@ -1,0 +1,13 @@
+<configuration>
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>jedit-main.log</file>
+        <append> false</append>
+        <encoder>
+            <pattern>%msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="info" additivity="true">
+        <appender-ref ref="FILE" />
+    </root>
+</configuration>
