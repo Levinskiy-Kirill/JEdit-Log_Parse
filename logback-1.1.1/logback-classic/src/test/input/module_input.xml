@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_input" default="compile.module.input">
+  <dirname property="module.input.basedir" file="${ant.file.module_input}"/>
+  
+  <property name="module.jdk.home.input" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.input" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.input" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.input" value="-encoding UTF-8 -source 1.6 ${compiler.args}"/>
+  
+  <property name="input.output.dir" value="${module.input.basedir}/../../../../../out/production/input"/>
+  <property name="input.testoutput.dir" value="${module.input.basedir}/../../../../../out/test/input"/>
+  
+  <path id="input.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="input.module.production.classpath">
+    <path refid="${module.jdk.classpath.input}"/>
+  </path>
+  
+  <path id="input.runtime.production.module.classpath">
+    <pathelement location="${input.output.dir}"/>
+  </path>
+  
+  <path id="input.module.classpath">
+    <path refid="${module.jdk.classpath.input}"/>
+    <pathelement location="${input.output.dir}"/>
+  </path>
+  
+  <path id="input.runtime.module.classpath">
+    <pathelement location="${input.testoutput.dir}"/>
+    <pathelement location="${input.output.dir}"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.input">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.input">
+    <patternset refid="excluded.from.module.input"/>
+  </patternset>
+  
+  <path id="input.module.sourcepath">
+    <dirset dir="${module.input.basedir}">
+      <include name="gaffer"/>
+      <include name="turbo"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.input" depends="compile.module.input.production,compile.module.input.tests" description="Compile module input"/>
+  
+  <target name="compile.module.input.production" depends="register.custom.compilers" description="Compile module input; production classes">
+    <mkdir dir="${input.output.dir}"/>
+    <javac2 destdir="${input.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.input}/javac">
+      <compilerarg line="${compiler.args.input}"/>
+      <bootclasspath refid="input.module.bootclasspath"/>
+      <classpath refid="input.module.production.classpath"/>
+      <src refid="input.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.input"/>
+    </javac2>
+    
+    <copy todir="${input.output.dir}">
+      <fileset dir="${module.input.basedir}/gaffer">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+      <fileset dir="${module.input.basedir}/turbo">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.input.tests" depends="register.custom.compilers,compile.module.input.production" description="compile module input; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.input" description="cleanup module">
+    <delete dir="${input.output.dir}"/>
+    <delete dir="${input.testoutput.dir}"/>
+  </target>
+</project>

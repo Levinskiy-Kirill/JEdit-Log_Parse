@@ -347,7 +347,7 @@ public class JEditTextArea extends TextArea
                 addSelection((LogSelection)item);
                 break;
             case SELECTION_CLEAR:
-                setCaretPosition(0);
+                setCaretPosition(this.getCaretPosition());
                 hasSelection = false;
                 break;
             case PASTE_ACTION:
@@ -440,7 +440,8 @@ public class JEditTextArea extends TextArea
     }
 
 	private boolean openLogFile() throws Exception {
-		JFileChooser chooser = new JFileChooser(System.getProperty("user.home"));
+		JFileChooser chooser = new JFileChooser();
+        chooser.setCurrentDirectory(Paths.get("logs").toFile());
 		if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
 			items = new ArrayList<LogItem>(ParseUtil.parseFile(chooser.getSelectedFile().getAbsolutePath()));
 			log.info("All items: " + items);

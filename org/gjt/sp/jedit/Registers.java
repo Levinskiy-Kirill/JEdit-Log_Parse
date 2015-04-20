@@ -36,6 +36,7 @@ import org.gjt.sp.util.Log;
 import org.log.LogCopy;
 import org.log.LogCut;
 import org.log.LogPaste;
+import org.log.LogSelectionClear;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,7 +96,7 @@ public class Registers
 			return;
 
 		try {
-			mapper.writeValueAsString(new LogCopy(selection));
+			log.info(mapper.writeValueAsString(new LogCopy(selection)));
 		} catch (Exception e) {
 			Log.log(Log.ERROR, null, "Cannot write copy action to json", e);
 		}
@@ -122,7 +123,8 @@ public class Registers
 			if(selection == null)
 				return;
 			try {
-				mapper.writeValueAsString(new LogCut(selection));
+				log.info(mapper.writeValueAsString(new LogCut(selection)));
+                log.info(mapper.writeValueAsString(new LogSelectionClear()));
 			} catch (Exception e) {
 				Log.log(Log.ERROR, null, "Cannot write cut action to json", e);
 			}
@@ -408,7 +410,7 @@ public class Registers
 			{
 				textArea.replaceSelection(selection);
 				try {
-					mapper.writeValueAsString(new LogPaste(textArea.getCaretPosition(), selection));
+					log.info(mapper.writeValueAsString(new LogPaste(textArea.getCaretPosition(), selection)));
 				} catch (Exception e) {
 					Log.log(Log.ERROR, null, "Cannot write paste action to json", e);
 				}
