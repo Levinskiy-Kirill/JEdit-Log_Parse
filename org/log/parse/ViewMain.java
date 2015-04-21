@@ -21,30 +21,10 @@
 
 package org.log.parse;
 
-import org.gjt.sp.jedit.gui.KeyEventTranslator;
-import org.gjt.sp.jedit.textarea.JEditTextArea;
-import org.gjt.sp.util.Log;
-import org.log.LogEventTypes;
-import org.log.LogItem;
-import org.log.LogKey;
-import org.log.LogSelection;
-
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseListener;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 public class ViewMain extends JFrame {
+/*
 
 	public static final int WINDOW_WIDTH = 800;
 	public static final int WINDOW_HEIGHT = 600;
@@ -256,5 +236,6 @@ public class ViewMain extends JFrame {
 			return this;
 		}
 	}
+*/
 
 }

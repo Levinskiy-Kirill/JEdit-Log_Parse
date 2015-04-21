@@ -50,8 +50,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
+import java.util.*;
 import java.util.List;
 //}}}
 
@@ -72,7 +71,7 @@ public class JEditTextArea extends TextArea
 
 	private static final Logger log = LoggerFactory.getLogger(JEditTextArea.class);
 	private ObjectMapper mapper = new ObjectMapper();
-	private List<LogItem> items = new ArrayList<LogItem>();
+	private LinkedList<LinkedList<LogItem>> items;
 	private LogItem current;
     private LogItem previous = null;
 	private boolean hasSelection;
@@ -196,8 +195,8 @@ public class JEditTextArea extends TextArea
 	public void parseLog() {
 		try {
 			if (openLogFile()) {
-				current = items.get(0);
-				log.info("Current action item: " + current);
+				//current = items.get(0);
+				//log.info("Current action item: " + current);
 			}
 		} catch (Exception ex) {
 			Log.log(Log.ERROR, this, "Something went wrong", ex);
@@ -316,21 +315,21 @@ public class JEditTextArea extends TextArea
     }
 
     public void nextAction() {
-        log.info("Current in nextAction(): " + current);
+        /*log.info("Current in nextAction(): " + current);
         if (current != null) {
             try {
                 processItem(current);
             } catch (AWTException e) {
                 log.info("Cannot instantiate robot");
             }
-            int nextIndex = items.indexOf(current) + 1;
+            //int nextIndex = items.indexOf(current) + 1;
             if (items.size() > nextIndex) {
-                previous = current;
-                current = items.get(nextIndex);
+                //previous = current;
+                //current = items.get(nextIndex);
             } else {
                 current = null;
             }
-        }
+        }*/
     }
 
     private void processItem(LogItem item) throws AWTException {
@@ -443,8 +442,17 @@ public class JEditTextArea extends TextArea
 		JFileChooser chooser = new JFileChooser();
         chooser.setCurrentDirectory(Paths.get("logs").toFile());
 		if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-			items = new ArrayList<LogItem>(ParseUtil.parseFile(chooser.getSelectedFile().getAbsolutePath()));
-			log.info("All items: " + items);
+			items = ParseUtil.parseFile(chooser.getSelectedFile().getAbsolutePath());
+            ListIterator<LinkedList<LogItem>> itr = items.listIterator();
+            while(itr.hasNext()) {
+                log.info(itr.nextIndex() + "Type");
+                ListIterator<LogItem> itr2 = itr.next().listIterator();
+                while(itr2.hasNext()) {
+                    log.info(itr2.next() + "\n");
+                }
+                log.info("\n\n");
+            }
+			//log.info("All items: " + items);
 			return true;
 		} else {
 			return false;
