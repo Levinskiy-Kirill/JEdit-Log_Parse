@@ -21,12 +21,13 @@
 
 package org.log.parse;
 
+
 import javax.swing.*;
 
 public class ViewMain extends JFrame {
-/*
 
-	public static final int WINDOW_WIDTH = 800;
+
+	/*public static final int WINDOW_WIDTH = 800;
 	public static final int WINDOW_HEIGHT = 600;
 
 	private final Collection<LogItem> items = new ArrayList<LogItem>();
@@ -236,6 +237,7 @@ public class ViewMain extends JFrame {
 			return this;
 		}
 	}
-*/
 
+*/
 }
+

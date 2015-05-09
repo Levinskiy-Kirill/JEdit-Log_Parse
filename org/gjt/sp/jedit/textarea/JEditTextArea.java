@@ -71,8 +71,8 @@ public class JEditTextArea extends TextArea
 
 	private static final Logger log = LoggerFactory.getLogger(JEditTextArea.class);
 	private ObjectMapper mapper = new ObjectMapper();
-	private LinkedList<LinkedList<LogItem>> items;
-	private LogItem current;
+    private List<LogItem> items = new ArrayList<LogItem>();
+    private LogItem current;
     private LogItem previous = null;
 	private boolean hasSelection;
 
@@ -147,6 +147,7 @@ public class JEditTextArea extends TextArea
 					} catch (Exception ex) {
 						Log.log(1, null, "cannot write json:\n", ex);
 					}
+
 				}
 			}
 		});
@@ -192,16 +193,16 @@ public class JEditTextArea extends TextArea
 				|| keyCode == KeyEvent.VK_INSERT;
 	}
 
-	public void parseLog() {
-		try {
-			if (openLogFile()) {
-				//current = items.get(0);
-				//log.info("Current action item: " + current);
-			}
-		} catch (Exception ex) {
-			Log.log(Log.ERROR, this, "Something went wrong", ex);
-		}
-	}
+    public void parseLog() {
+        try {
+            if (openLogFile()) {
+                current = items.get(0);
+                log.info("Current action item: " + current);
+            }
+        } catch (Exception ex) {
+            Log.log(Log.ERROR, this, "Something went wrong", ex);
+        }
+    }
 
     public void compileBuffer(final Buffer toCompile) throws IOException {
         try {
@@ -315,21 +316,32 @@ public class JEditTextArea extends TextArea
     }
 
     public void nextAction() {
-        /*log.info("Current in nextAction(): " + current);
-        if (current != null) {
-            try {
-                processItem(current);
-            } catch (AWTException e) {
-                log.info("Cannot instantiate robot");
+        //do {
+            log.info("Current in nextAction(): " + current);
+            if (current != null) {
+                try {
+                    //log.info("Call processItem");
+                    processItem(current);
+                    //log.info("After work processItem");
+                } catch (AWTException e) {
+                    //log.info("Cannot instantiate robot");
+                }
+                int nextIndex = items.indexOf(current) + 1;
+                if (items.size() > nextIndex) {
+                    previous = current;
+                    //log.info("Befor change current item. Current: " + current);
+                    current = items.get(nextIndex);
+                    //log.info("After change current item. New current: " + current);
+                } else {
+                    current = null;
+                }
             }
-            //int nextIndex = items.indexOf(current) + 1;
-            if (items.size() > nextIndex) {
-                //previous = current;
-                //current = items.get(nextIndex);
-            } else {
-                current = null;
-            }
-        }*/
+            //log.info("\n\n\n");
+        //} while(current.getType() != LogEventTypes.SERVICE_KEY);
+    }
+
+    public void previousAction() {
+        JOptionPane.showMessageDialog(this, "Previous action");
     }
 
     private void processItem(LogItem item) throws AWTException {
@@ -346,7 +358,7 @@ public class JEditTextArea extends TextArea
                 addSelection((LogSelection)item);
                 break;
             case SELECTION_CLEAR:
-                setCaretPosition(this.getCaretPosition());
+                setSelection((Selection) null);
                 hasSelection = false;
                 break;
             case PASTE_ACTION:
@@ -362,64 +374,71 @@ public class JEditTextArea extends TextArea
                 Registers.copy(this,'$');
                 break;
             default:
-                JOptionPane.showMessageDialog(this, item.getStringForm(), "Current action:", JOptionPane.INFORMATION_MESSAGE);
+                //JOptionPane.showMessageDialog(this, item.getStringForm(), "Current action:", JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
-	private void pressKey(LogItem item) throws AWTException {
-		LogEventTypes type = item.getType();
-		if (type == LogEventTypes.SERVICE_KEY) {
-			pressServiceKey((LogServiceKey)item);
-		} else if (type == LogEventTypes.CHARACTER_KEY) {
-			pressCharKey((LogCharacterKey)item);
-		} else if (type == LogEventTypes.SELECTION) {
-			hasSelection = true;
-			addSelection((LogSelection)item);
-		} else if (type == LogEventTypes.SELECTION_CLEAR) {
-			setCaretPosition(0);
-			hasSelection = false;
-		}
-	}
+    private void pressKey(LogItem item) throws AWTException {
+        LogEventTypes type = item.getType();
+        if (type == LogEventTypes.SERVICE_KEY) {
+            pressServiceKey((LogServiceKey)item);
+        } else if (type == LogEventTypes.CHARACTER_KEY) {
+            pressCharKey((LogCharacterKey)item);
+        } else if (type == LogEventTypes.SELECTION) {
+            hasSelection = true;
+            addSelection((LogSelection)item);
+        } else if (type == LogEventTypes.SELECTION_CLEAR) {
+            setCaretPosition(0);
+            hasSelection = false;
+        }
+    }
 
 	private void addSelection(final LogSelection item) {
 		this.setSelection(item.createSelection());
 	}
 
-	private void pressCharKey(final LogCharacterKey item) throws AWTException {
-		final Robot robot = new Robot();
-		ensurePosition(item.getPosition());
-		if (isShiftRequired(item)) { //Emulate characters with pressed shift
-			robot.keyPress(KeyEvent.VK_SHIFT);
-			robot.keyPress(item.getKeyCode());
-			robot.keyRelease(item.getKeyCode());
-			robot.keyRelease(KeyEvent.VK_SHIFT);
-		} else {
-			robot.keyPress(item.getKeyCode());
-			robot.keyRelease(item.getKeyCode());
-		}
+    private void iterationList(LinkedList<LogItem> itemsOneType) throws AWTException {
+        ListIterator<LogItem> itr = itemsOneType.listIterator();
+        while(itr.hasNext()) {
+            //pressCharKey((LogCharacterKey) itr.next());
+        }
+    }
 
-	}
+    private void pressCharKey(final LogCharacterKey item) throws AWTException {
+        final Robot robot = new Robot();
+        //ensurePosition(item.getPosition());
+        if (isShiftRequired(item)) { //Emulate characters with pressed shift
+            robot.keyPress(KeyEvent.VK_SHIFT);
+            robot.keyPress(item.getKeyCode());
+            robot.keyRelease(item.getKeyCode());
+            robot.keyRelease(KeyEvent.VK_SHIFT);
+        } else {
+            robot.keyPress(item.getKeyCode());
+            robot.keyRelease(item.getKeyCode());
+        }
 
-	private void ensurePosition(int position)
-	{
-		if (!hasSelection) {
-			setCaretPosition(position);
-		} else {
-			moveCaretPosition(position);
-		}
-	}
+    }
 
-	private boolean isShiftRequired(LogCharacterKey item)
-	{
-		return item.getMask() == KeyEvent.SHIFT_MASK;
-	}
+    private void ensurePosition(int position)
+    {
+        if (!hasSelection) {
+            setCaretPosition(position);
+        } else {
+            moveCaretPosition(position);
+        }
+    }
 
-	private void pressServiceKey(final LogServiceKey item) throws AWTException {
-		final Robot robot = new Robot();
-		ensurePosition(getCaretForServiceKey(item));
-		robot.keyPress(item.getKeyCode());
-		robot.keyRelease(item.getKeyCode());
-	}
+    private boolean isShiftRequired(LogCharacterKey item)
+    {
+        return item.getMask() == KeyEvent.SHIFT_MASK;
+    }
+
+    private void pressServiceKey(final LogServiceKey item) throws AWTException {
+        final Robot robot = new Robot();
+        ensurePosition(getCaretForServiceKey(item));
+        robot.keyPress(item.getKeyCode());
+        robot.keyRelease(item.getKeyCode());
+    }
 
     private int getCaretForServiceKey(LogServiceKey item)
     {
@@ -438,26 +457,17 @@ public class JEditTextArea extends TextArea
         }
     }
 
-	private boolean openLogFile() throws Exception {
-		JFileChooser chooser = new JFileChooser();
+    private boolean openLogFile() throws Exception {
+        JFileChooser chooser = new JFileChooser();
         chooser.setCurrentDirectory(Paths.get("logs").toFile());
-		if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-			items = ParseUtil.parseFile(chooser.getSelectedFile().getAbsolutePath());
-            ListIterator<LinkedList<LogItem>> itr = items.listIterator();
-            while(itr.hasNext()) {
-                log.info(itr.nextIndex() + "Type");
-                ListIterator<LogItem> itr2 = itr.next().listIterator();
-                while(itr2.hasNext()) {
-                    log.info(itr2.next() + "\n");
-                }
-                log.info("\n\n");
-            }
-			//log.info("All items: " + items);
-			return true;
-		} else {
-			return false;
-		}
-	}
+        if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            items = new ArrayList<LogItem>(ParseUtil.parseFile(chooser.getSelectedFile().getAbsolutePath()));
+            log.info("All items: " + items);
+            return true;
+        } else {
+            return false;
+        }
+    }
 
 	//{{{ dispose() method
 	@Override

@@ -26,9 +26,8 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 public class ParseUtil {
-    public static LinkedList<LinkedList<LogItem>> parseFile(final String filename) throws Exception {
-        final LinkedList<LinkedList<LogItem>> res = new LinkedList<LinkedList<LogItem>>();
-        LinkedList<LogItem> temp = new LinkedList<LogItem>();
+    public static Collection<LogItem> parseFile(final String filename) throws Exception {
+        final Collection<LogItem> res = new ArrayList<>();
         final ObjectMapper mapper = new ObjectMapper();
         BufferedReader br = null;
         try {
@@ -36,15 +35,8 @@ public class ParseUtil {
             String s;
             while ((s = br.readLine()) != null && (!"".equals(s))) {
                 final LogItem item = mapper.readValue(s.getBytes(), LogItem.class);
-                if (!temp.isEmpty()) {
-                    if (temp.getFirst().getType() != item.getType()) {
-                        res.add(temp);
-                        temp = new LinkedList<LogItem>();
-                    }
-                }
-                temp.add(getLogItem(s, item.getType(), mapper));
+                res.add(getLogItem(s, item.getType(), mapper));
             }
-            res.add(temp);
         } finally {
             if (br != null) {
                 try {

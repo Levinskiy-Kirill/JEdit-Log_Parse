@@ -195,7 +195,8 @@ reload-encoding.icon.small=16x16/actions/view-refresh.png
 #{{{
 #Log menu
 log=parse-log \
-	next-action
+	next-action \
+	previous-action
 
 #}}}
 

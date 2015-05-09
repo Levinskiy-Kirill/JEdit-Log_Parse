@@ -13,6 +13,6 @@ public class LogCopy extends LogEdit {
 
 	@Override
 	public String getStringForm() {
-		return super.getStringForm();
+        return super.getStringForm();
 	}
 }

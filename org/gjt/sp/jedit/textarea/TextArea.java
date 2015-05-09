@@ -89,7 +89,6 @@ import java.util.TooManyListenersException;
  */
 public abstract class TextArea extends JComponent
 {
-
 	//{{{ TextArea constructor
 	/**
 	 * Creates a new JEditTextArea.
@@ -1739,6 +1738,10 @@ forward_scan:	do
 	 */
 	public Selection getSelection(int index)
 	{
+        if(index == -1) {
+            int size = selectionManager.selection.size();
+            return selectionManager.selection.get(size - 1);
+        }
 		return selectionManager.selection.get(index);
 	} //}}}
 
@@ -4910,7 +4913,7 @@ loop:		for(int i = lineNo - 1; i >= 0; i--)
 	MouseInputAdapter mouseHandler;
 	final ChunkCache chunkCache;
 	DisplayManager displayManager;
-	final SelectionManager selectionManager;
+	final public SelectionManager selectionManager;
 	/**
 	 * The action context.
 	 * It is used only when the textarea is standalone

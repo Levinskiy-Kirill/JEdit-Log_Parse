@@ -30,6 +30,10 @@
     <CODE>textArea.nextAction();</CODE>
 </ACTION>
 
+    <ACTION NAME="previous-action">
+        <CODE>textArea.previousAction();</CODE>
+    </ACTION>
+
 <ACTION NAME="about">
 	<CODE>
 		new AboutDialog(view);

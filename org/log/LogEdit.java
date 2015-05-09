@@ -18,4 +18,6 @@ public abstract class LogEdit extends LogItem {
 	public void setText(final String text) {
 		this.text = text;
 	}
+
+    //public String getStringForm() {return super.getStringForm();}
 }

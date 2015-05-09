@@ -2982,7 +2982,7 @@ public class jEdit
 	{
 
 		try {
-			final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH-mm");
+			final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
 			Files.copy(Paths.get("jedit-main.log"), Paths.get("logs", "log-" + format.format(Calendar.getInstance().getTime())));
 		} catch (IOException e) {
 			Log.log(1, null, "error while copying log.", e);

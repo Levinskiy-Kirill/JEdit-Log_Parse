@@ -24,6 +24,7 @@
 package org.gjt.sp.jedit;
 
 //{{{ Imports
+
 import org.codehaus.jackson.map.ObjectMapper;
 import org.gjt.sp.jedit.buffer.JEditBuffer;
 import org.gjt.sp.jedit.datatransfer.JEditDataFlavor;
@@ -33,19 +34,12 @@ import org.gjt.sp.jedit.gui.HistoryModel;
 import org.gjt.sp.jedit.textarea.Selection;
 import org.gjt.sp.jedit.textarea.TextArea;
 import org.gjt.sp.util.Log;
-import org.log.LogCopy;
-import org.log.LogCut;
-import org.log.LogPaste;
-import org.log.LogSelectionClear;
+import org.log.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.*;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.StringSelection;
-import java.awt.datatransfer.Transferable;
-import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.datatransfer.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
@@ -120,9 +114,13 @@ public class Registers
 		if(textArea.isEditable())
 		{
 			String selection = textArea.getSelectedText();
+            Selection sel = textArea.getSelection(-1);
+
 			if(selection == null)
 				return;
+
 			try {
+                log.info(mapper.writeValueAsString(new LogSelection(sel.getStart(), sel.getEnd())));
 				log.info(mapper.writeValueAsString(new LogCut(selection)));
                 log.info(mapper.writeValueAsString(new LogSelectionClear()));
 			} catch (Exception e) {
@@ -132,7 +130,7 @@ public class Registers
 			setRegister(register,transferable);
 			HistoryModel.getModel("clipboard").addItem(selection);
 
-			textArea.setSelectedText("");
+            textArea.setSelectedText("");
 		}
 		else
 			textArea.getToolkit().beep();
@@ -371,6 +369,15 @@ public class Registers
 	{
 		try
 		{
+            Selection sel = null;
+            try {
+                if(textArea.getSelectionCount() != 0) {
+                    sel = textArea.getSelection(-1);
+                    log.info(mapper.writeValueAsString(new LogSelection(sel.getStart(), sel.getEnd())));
+                }
+            } catch (Exception e) {
+                Log.log(Log.ERROR, null, "Cannot write paste action to json", e);
+            }
 			buffer.beginCompoundEdit();
 
 			/* vertical paste */
@@ -406,15 +413,21 @@ public class Registers
 					}
 				}
 			}
-			else /* Regular paste */
-			{
-				textArea.replaceSelection(selection);
-				try {
-					log.info(mapper.writeValueAsString(new LogPaste(textArea.getCaretPosition(), selection)));
-				} catch (Exception e) {
-					Log.log(Log.ERROR, null, "Cannot write paste action to json", e);
-				}
-			}
+			else /* Regular paste */ {
+                textArea.replaceSelection(selection);
+                try {
+                    log.info(mapper.writeValueAsString(new LogPaste(textArea.getCaretPosition(), selection)));
+                    if(sel != null) {
+                        try {
+                            log.info(mapper.writeValueAsString(new LogSelectionClear()));
+                        } catch (Exception e) {
+                            Log.log(Log.ERROR, null, "Cannot write paste action to json", e);
+                        }
+                    }
+                } catch (Exception e) {
+                    Log.log(Log.ERROR, null, "Cannot write paste action to json", e);
+                }
+            }
 		}
 		finally
 		{

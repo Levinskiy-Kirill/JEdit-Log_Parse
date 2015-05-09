@@ -24,6 +24,7 @@ package org.gjt.sp.jedit.textarea;
 
 //{{{ Imports
 
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -44,6 +45,7 @@ class SelectionManager
 {
 	private static final Logger log = LoggerFactory.getLogger(JEditTextArea.class);
 	private final ObjectMapper mapper = new ObjectMapper();
+    private LogSelection sel;
 	// this is package-private so that the painter can use it without
 	// having to call getSelection() (which involves an array copy)
 	List<Selection> selection;
@@ -160,14 +162,16 @@ class SelectionManager
 			selection.add(addMe);
 
 		textArea.invalidateLineRange(addMe.startLine,addMe.endLine);
-		try {
+        this.sel = new LogSelection(addMe.getStart(), addMe.getEnd());
+		/*try {
 			log.info(mapper.writeValueAsString(new LogSelection(
 					addMe.getStart(),
 					addMe.getEnd()
 			)));
 		} catch (Exception e) {
 			Log.log(1, this, "Error writing json", e);
-		}
+		}*/
+
 		//TODO: if not working, just add start and end of all selection (getSelection())
 	} //}}}
 
@@ -176,10 +180,11 @@ class SelectionManager
 	 * Sets the selection. Nested and overlapping selections are merged
 	 * where possible.
 	 */
-	void setSelection(Selection selection)
+	public void setSelection(Selection selection)
 	{
-		if (!this.selection.isEmpty() && selection ==null) {
+		if (!this.selection.isEmpty() && selection == null) {
 			try {
+                log.info(mapper.writeValueAsString(sel));
 				log.info(mapper.writeValueAsString(new LogSelectionClear()));
 			} catch (Exception e) {
 				Log.log(1, this, "error while writing json", e);

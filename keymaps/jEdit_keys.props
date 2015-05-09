@@ -21,6 +21,7 @@ copy.shortcut=C+c
 #new-file-in-mode.shortcut=CS+n
 open-file.shortcut=
 next-action.shortcut=F1
+previous-action.shortcut=F2
 #reload.shortcut=F5
 #print.shortcut=C+p
 #exit.shortcut=C+q
