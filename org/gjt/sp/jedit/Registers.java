@@ -86,10 +86,12 @@ public class Registers
 	public static void copy(TextArea textArea, char register)
 	{
 		String selection = textArea.getSelectedText();
+        Selection sel = textArea.getSelection(-1);
 		if(selection == null)
 			return;
 
 		try {
+            log.info(mapper.writeValueAsString(new LogSelection(sel.getStart(), sel.getEnd())));
 			log.info(mapper.writeValueAsString(new LogCopy(selection)));
 		} catch (Exception e) {
 			Log.log(Log.ERROR, null, "Cannot write copy action to json", e);
