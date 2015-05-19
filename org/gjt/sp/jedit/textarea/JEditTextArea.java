@@ -193,7 +193,11 @@ public class JEditTextArea extends TextArea
     }
 
     public void nextAction() {
-        parse.nextAction();
+        parse.nextAction(buffer);
+    }
+
+    public void previousAction() {
+        parse.previousAction(buffer);
     }
 
     public void compileBuffer(final Buffer toCompile) throws IOException {

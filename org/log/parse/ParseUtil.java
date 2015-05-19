@@ -2,6 +2,7 @@ package org.log.parse;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.gjt.sp.jedit.Registers;
+import org.gjt.sp.jedit.buffer.JEditBuffer;
 import org.gjt.sp.jedit.textarea.JEditTextArea;
 import org.gjt.sp.jedit.textarea.Selection;
 import org.gjt.sp.util.Log;
@@ -29,17 +30,19 @@ public class ParseUtil {
     //private LinkedList<LogItem> itemsOneList;
     private ListIterator<LinkedList<LogItem>> iter;
     //private LinkedList<LogItem> current;
+    private boolean hasSelected;
+    JEditBuffer buffer;
 
     public ParseUtil(JEditTextArea textArea) {
         this.textArea = textArea;
         items = new LinkedList<LinkedList<LogItem>>();
+        hasSelected = false;
+        //buffer = textArea.getBuffer();
     }
 
     public void parseLog() {
         try {
             if(openLogFile()) {
-                //itemsOneList = items.getFirst();
-                //iter = items.listIterator();
                 iter = items.listIterator();
                 ListIterator<LinkedList<LogItem>> iter2 = items.listIterator();
                 while(iter2.hasNext()) {
@@ -125,9 +128,9 @@ public class ParseUtil {
         switch (type) {
             case CHARACTER_KEY:
                 return true;
-            case SERVICE_KEY:
+            /*case SERVICE_KEY:
                 if(((LogServiceKey)item).getKeyCode() == KeyEvent.VK_ENTER)
-                    return true;
+                    return true;*/
         }
         return false;
     }
@@ -195,9 +198,11 @@ public class ParseUtil {
         }
     }
 
-    public void nextAction() {
-        //do {
-        if(iter.hasNext()) {
+    public void nextAction(JEditBuffer buffer) {
+        if(buffer.canRedo()) {
+            buffer.redo(textArea);
+        }
+        else if(iter.hasNext()) {
             LinkedList<LogItem> itemsOneList;
             itemsOneList = iter.next();
             for(LogItem item : itemsOneList) {
@@ -208,32 +213,13 @@ public class ParseUtil {
                 }
             }
         }
-        /*if (current != null) {
-            try {
-                //log.info("Call processItem");
-                processItem();
-                //log.info("After work processItem");
-            } catch (AWTException e) {
-                //log.info("Cannot instantiate robot");
-            }
-            int nextIndex = items.indexOf(current) + 1;
-            if (items.size() > nextIndex) {
-                previous = current;
-                //log.info("Befor change current item. Current: " + current);
-                current = items.get(nextIndex);
-                //log.info("After change current item. New current: " + current);
-            } else {
-                current = null;
-            }
-        }*/
-        //log.info("\n\n\n");
-        //} while(current.getType() != LogEventTypes.SERVICE_KEY);
     }
 
     private void processItem(LogItem item) throws AWTException {
         LogEventTypes type = item.getType();
         switch (type) {
             case SERVICE_KEY:
+                log.info("Вызывается SERVICE_KEY item = " + item + " Type = " + item.getType());
                 pressServiceKey((LogServiceKey)item);
                 break;
             case CHARACTER_KEY:
@@ -243,16 +229,16 @@ public class ParseUtil {
                 //hasSelection = true;
                 addSelection((LogSelection)item);
                 break;
-            case SELECTION_CLEAR:
-                textArea.setSelection((Selection) null);
+            /*case SELECTION_CLEAR:
+                //textArea.setSelection((Selection) null);
                 //hasSelection = false;
-                break;
+                break;*/
             case PASTE_ACTION:
                 if (textArea.getSelection() == null) {
                     textArea.setCaretPosition(((LogPaste) item).getPosition());
                 }
                 Registers.paste(textArea, '$', false);
-                textArea.setCaretPosition(((LogPaste) item).getPosition());
+                //textArea.setCaretPosition(((LogPaste) item).getPosition());
                 break;
             case CUT_ACTION:
                 Registers.cut(textArea,'$');
@@ -291,6 +277,9 @@ public class ParseUtil {
 
     private void pressCharKey(LogCharacterKey item) throws AWTException {
         final Robot robot = new Robot();
+
+        //textArea.setMagicCaretPosition(item.getPosition());
+        ensurePosition(item.getPosition());
         if (isShiftRequired(item)) { //Emulate characters with pressed shift
             robot.keyPress(KeyEvent.VK_SHIFT);
             robot.keyPress(item.getKeyCode());
@@ -300,7 +289,6 @@ public class ParseUtil {
             robot.keyPress(item.getKeyCode());
             robot.keyRelease(item.getKeyCode());
         }
-
     }
 
     private boolean isShiftRequired(LogCharacterKey item)
@@ -310,13 +298,86 @@ public class ParseUtil {
 
     private void pressServiceKey(LogServiceKey item) throws AWTException {
         final Robot robot = new Robot();
+        //textArea.setFocusable(false);
+        //textArea.setMagicCaretPosition(item.getPosition());
+        if (!isMovingCursorType(item) && !isDeleteItem(item)) {
+            ensurePosition(item.getPosition());
+        }
         //ensurePosition(getCaretForServiceKey((LogServiceKey)current));
         robot.keyPress(item.getKeyCode());
         robot.keyRelease(item.getKeyCode());
+
+    }
+
+    private void ensurePosition(int position) {
+        int bufferLength = textArea.getBufferLength();
+        if (bufferLength <= position) {
+            textArea.setCaretPosition(bufferLength);
+        } else {
+            textArea.setCaretPosition(position);
+        }
     }
 
     public void addSelection(LogSelection item) {
         textArea.setSelection(item.createSelection());
+    }
+
+    public void previousAction(JEditBuffer buffer) {
+        buffer.undo(textArea);
+        //iter.previous();
+        /*LinkedList<LogItem> itemsOneBlock = iter.previous();
+        LogItem item = itemsOneBlock.getFirst();
+        if(isTypesetting(item)) {
+            try {
+                Robot robot = new Robot();
+                int count = itemsOneBlock.size();
+                int caretLine = textArea.getCaretLine();
+                int indent;
+                //textArea.setCaretPosition(((LogKey)item).getPosition() + 1);
+                for (int i = 0; i < count; i++) {
+                    textArea.backspace();
+                    *//*robot.keyPress(KeyEvent.VK_BACK_SPACE);
+                    robot.keyRelease(KeyEvent.VK_BACK_SPACE);*//*
+                    if(caretLine > textArea.getCaretLine()) {
+                        indent = buffer.getIdealIndentForLine(caretLine);
+                        caretLine = textArea.getCaretLine();
+                        i -= indent;
+                    }
+                }
+            } catch (AWTException e) {
+                e.printStackTrace();
+            }
+        }*/
+        /*else if(isMovingCursorType(item)) {
+            if(((LogServiceKey)itemsOneBlock.getFirst()).getPosition() >= ((LogServiceKey)itemsOneBlock.getLast()).getPosition())
+                textArea.setCaretPosition(((LogServiceKey)item).getPosition() + 1);
+            else
+                textArea.setCaretPosition(((LogServiceKey)item).getPosition());
+        }
+        else {
+            try {
+                processItem(item);
+            } catch (AWTException e) {
+                e.printStackTrace();
+            }
+*/
+        /*if(isDeleteItem(item)) {
+            while(iter.hasPrevious()) {
+                LinkedList<LogItem> tempList = iter.previous();
+                LogItem temp = tempList.getFirst();
+                if(isTypesetting(temp)) {
+                    textArea.setCaretPosition(((LogKey)temp).getPosition());
+                    for (LogItem key : tempList) {
+                        try {
+                            processItem(key);
+                        } catch (AWTException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        }*/
+        //}
     }
 }
 
