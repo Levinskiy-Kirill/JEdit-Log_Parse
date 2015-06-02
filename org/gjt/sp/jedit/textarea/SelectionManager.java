@@ -162,7 +162,7 @@ class SelectionManager
 			selection.add(addMe);
 
 		textArea.invalidateLineRange(addMe.startLine,addMe.endLine);
-        this.sel = new LogSelection(addMe.getStart(), addMe.getEnd());
+        this.sel = new LogSelection(addMe.getStart(), addMe.getEnd(), textArea.getSelectedText());
 		/*try {
 			log.info(mapper.writeValueAsString(new LogSelection(
 					addMe.getStart(),

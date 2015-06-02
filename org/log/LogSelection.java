@@ -27,18 +27,28 @@ public class LogSelection extends LogItem {
 
 	private int start;
 	private int end;
+    private String text;
 
 	public LogSelection() {
 		super();
 	}
 
-	public LogSelection(final int start, final int end) {
+	public LogSelection(final int start, final int end, final String text) {
 		super();
 		assert end > start;
+        this.text = text;
 		this.start = start;
 		this.end = end;
 		this.type = LogEventTypes.SELECTION;
 	}
+
+    public LogSelection(final int start, final int end) {
+        super();
+        assert end > start;
+        this.start = start;
+        this.end = end;
+        this.type = LogEventTypes.SELECTION;
+    }
 
 	public Selection createSelection() {
 		return new Selection.Range(start, end);
@@ -63,6 +73,14 @@ public class LogSelection extends LogItem {
 	public void setEnd(final int end) {
 		this.end = end;
 	}
+
+    public String getText() {
+        return this.text;
+    }
+
+    public void setText(final String text) {
+        this.text = text;
+    }
 
 	@Override
 	public String getStringForm() {

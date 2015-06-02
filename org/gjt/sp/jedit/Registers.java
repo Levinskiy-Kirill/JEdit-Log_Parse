@@ -91,7 +91,7 @@ public class Registers
 			return;
 
 		try {
-            log.info(mapper.writeValueAsString(new LogSelection(sel.getStart(), sel.getEnd())));
+            log.info(mapper.writeValueAsString(new LogSelection(sel.getStart(), sel.getEnd(), textArea.getSelectedText(sel))));
 			log.info(mapper.writeValueAsString(new LogCopy(selection)));
 		} catch (Exception e) {
 			Log.log(Log.ERROR, null, "Cannot write copy action to json", e);
@@ -122,7 +122,7 @@ public class Registers
 				return;
 
 			try {
-                log.info(mapper.writeValueAsString(new LogSelection(sel.getStart(), sel.getEnd())));
+                log.info(mapper.writeValueAsString(new LogSelection(sel.getStart(), sel.getEnd(), textArea.getSelectedText(sel))));
 				log.info(mapper.writeValueAsString(new LogCut(selection)));
                 log.info(mapper.writeValueAsString(new LogSelectionClear()));
 			} catch (Exception e) {
@@ -375,7 +375,7 @@ public class Registers
             try {
                 if(textArea.getSelectionCount() != 0) {
                     sel = textArea.getSelection(-1);
-                    log.info(mapper.writeValueAsString(new LogSelection(sel.getStart(), sel.getEnd())));
+                    log.info(mapper.writeValueAsString(new LogSelection(sel.getStart(), sel.getEnd(), textArea.getSelectedText(sel))));
                 }
             } catch (Exception e) {
                 Log.log(Log.ERROR, null, "Cannot write paste action to json", e);

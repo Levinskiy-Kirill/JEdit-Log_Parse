@@ -201,42 +201,35 @@ public class JEditTextArea extends TextArea
     }
 
     public void compileBuffer(final Buffer toCompile) throws IOException {
-        try {
-            log.info(mapper.writeValueAsString(new LogCompile()));
-        } catch (Exception e) {
-            Log.log(Log.ERROR, null, "Cannot write copy action to json", e);
-        }
+
         if (toCompile.isDirty()) {
             toCompile.save(getView(), toCompile.getPath());
         }
 
-        final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
-        final File outputFinal = Paths.get("out", "compileOut").toFile();
-        final File errorFinal = Paths.get("out", "compileError").toFile();
-
-        try {
-            outputFinal.createNewFile();
-            errorFinal.createNewFile();
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(this, "Невозможно создать файл");
-        }
-
-        final File output = Paths.get("out", "compileOut" + format.format(Calendar.getInstance().getTime())).toFile();
-        final File error = Paths.get("out", "compileError" + format.format(Calendar.getInstance().getTime())).toFile();
+        final File output = Paths.get("out", "compileOut").toFile();
+        final File error = Paths.get("out", "compileError").toFile();
         ArrayList<String> commands = new ArrayList<>();
         commands.add(jEdit.getProperty("java.compiler"));
         commands.add(toCompile.getName());
         try {
+            String s;
             Files.copy(Paths.get(toCompile.getPath()), Paths.get("out", toCompile.getName()), StandardCopyOption.REPLACE_EXISTING);
             final Process process = new ProcessBuilder(commands).directory(Paths.get("out").toFile()).redirectOutput(output).redirectError(error).start();
             int exitCode = process.waitFor();
             if (exitCode != 0) {
-                JOptionPane.showMessageDialog(this, getContentOfFile(error), "Результат компиляции", JOptionPane.ERROR_MESSAGE);
+                s = getContentOfFile(error);
+                JOptionPane.showMessageDialog(this, s, "Результат компиляции", JOptionPane.ERROR_MESSAGE);
             } else {
-                JOptionPane.showMessageDialog(this, "Компиляция прошла успешно", "Результат компиляции", JOptionPane.INFORMATION_MESSAGE);
+                s = getContentOfFile(output);
+                JOptionPane.showMessageDialog(this, s, "Результат компиляции", JOptionPane.INFORMATION_MESSAGE);
             }
-            appendToFile(output, outputFinal, format);
-            appendToFile(error, errorFinal, format);
+
+            try {
+                log.info(mapper.writeValueAsString(new LogCompile(s)));
+            } catch (Exception e) {
+                Log.log(Log.ERROR, null, "Cannot write copy action to json", e);
+            }
+
             Files.deleteIfExists(output.toPath());
             Files.deleteIfExists(error.toPath());
         } catch (IOException e) {
@@ -244,16 +237,6 @@ public class JEditTextArea extends TextArea
         } catch (InterruptedException e) {
             JOptionPane.showMessageDialog(this, "Compiling was interrupted");
         }
-    }
-
-    private void appendToFile(final File outputFile, final File inputFile, SimpleDateFormat format) throws IOException {
-        FileWriter fw = new FileWriter(inputFile, true);
-        String content = getContentOfFile(outputFile);
-        fw.write(format.format(Calendar.getInstance().getTime()));
-        fw.write("\n");
-        fw.write(content);
-        fw.write("\n\n");
-        fw.close();
     }
 
 	private String getContentOfFile(final File file) throws IOException {
@@ -269,39 +252,28 @@ public class JEditTextArea extends TextArea
 	}
 
     public void runBuffer(final Buffer toRun) {
-        try {
-            log.info(mapper.writeValueAsString(new LogRun()));
-        } catch (Exception e) {
-            Log.log(Log.ERROR, null, "Cannot write copy action to json", e);
-        }
-
-        final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
-        final File outputFinal = Paths.get("out", "runOut").toFile();
-        final File errorFinal = Paths.get("out", "runError").toFile();
-
-        try {
-            outputFinal.createNewFile();
-            errorFinal.createNewFile();
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(this, "Невозможно создать файл");
-        }
-
-        final File output = Paths.get("out", "runOut" + format.format(Calendar.getInstance().getTime())).toFile();
-        final File error = Paths.get("out", "runError" + format.format(Calendar.getInstance().getTime())).toFile();
+        final File output = Paths.get("out", "runOut").toFile();
+        final File error = Paths.get("out", "runError").toFile();
         ArrayList<String> commands = new ArrayList<>();
         commands.add(jEdit.getProperty("java.start"));
         commands.add(toRun.getName().replace(".java", ""));
 
         try {
+            String s;
             final Process process = new ProcessBuilder(commands).directory(Paths.get("out").toFile()).redirectOutput(output).redirectError(error).start();
             int exitCode = process.waitFor();
             if (exitCode != 0) {
-                JOptionPane.showMessageDialog(this, getContentOfFile(error), "Результат запуска", JOptionPane.ERROR_MESSAGE);
+                s = getContentOfFile(error);
+                JOptionPane.showMessageDialog(this, s, "Результат запуска", JOptionPane.ERROR_MESSAGE);
             } else {
-                JOptionPane.showMessageDialog(this, getContentOfFile(output), "Результат запуска", JOptionPane.INFORMATION_MESSAGE);
+                s = getContentOfFile(output);
+                JOptionPane.showMessageDialog(this, s, "Результат запуска", JOptionPane.INFORMATION_MESSAGE);
             }
-            appendToFile(output, outputFinal, format);
-            appendToFile(error, errorFinal, format);
+            try {
+                log.info(mapper.writeValueAsString(new LogRun(s)));
+            } catch (Exception e) {
+                Log.log(Log.ERROR, null, "Cannot write copy action to json", e);
+            }
             Files.deleteIfExists(output.toPath());
             Files.deleteIfExists(error.toPath());
         } catch (IOException e) {

@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.awt.image.ImageWatched;
 
 public class ParseUtil {
     private static final Logger log = LoggerFactory.getLogger(ParseUtil.class);
@@ -30,13 +31,13 @@ public class ParseUtil {
     //private LinkedList<LogItem> itemsOneList;
     private ListIterator<LinkedList<LogItem>> iter;
     //private LinkedList<LogItem> current;
-    private boolean hasSelected;
+    private boolean hasSelection;
     JEditBuffer buffer;
 
     public ParseUtil(JEditTextArea textArea) {
         this.textArea = textArea;
         items = new LinkedList<LinkedList<LogItem>>();
-        hasSelected = false;
+        hasSelection = false;
         //buffer = textArea.getBuffer();
     }
 
@@ -104,6 +105,15 @@ public class ParseUtil {
                     itemsOneBlock = new LinkedList<LogItem>();
                     continue;
                 }
+                else if(isBackSpaceItem(item)) {
+                    while(isBackSpaceItem(item)) {
+                        itemsOneBlock.add(item);
+                        item = readOneObject(br);
+                    }
+                    items.add(itemsOneBlock);
+                    itemsOneBlock = new LinkedList<LogItem>();
+                    continue;
+                }
                 else {
                     itemsOneBlock.add(item);
                     items.add(itemsOneBlock);
@@ -128,9 +138,9 @@ public class ParseUtil {
         switch (type) {
             case CHARACTER_KEY:
                 return true;
-            /*case SERVICE_KEY:
+            case SERVICE_KEY:
                 if(((LogServiceKey)item).getKeyCode() == KeyEvent.VK_ENTER)
-                    return true;*/
+                    return true;
         }
         return false;
     }
@@ -138,7 +148,11 @@ public class ParseUtil {
     private boolean isMovingCursorType(LogItem item) {
         if(item.getType() == LogEventTypes.SERVICE_KEY) {
             int keyCode = ((LogServiceKey)item).getKeyCode();
-            if(keyCode >= KeyEvent.VK_LEFT && keyCode <= KeyEvent.VK_DOWN)
+            if((keyCode >= KeyEvent.VK_LEFT && keyCode <= KeyEvent.VK_DOWN)
+                    || keyCode == KeyEvent.VK_PAGE_UP
+                    || keyCode == KeyEvent.VK_PAGE_DOWN
+                    || keyCode == KeyEvent.VK_HOME
+                    || keyCode == KeyEvent.VK_END)
                 return true;
         }
         return false;
@@ -147,7 +161,16 @@ public class ParseUtil {
     private boolean isDeleteItem(LogItem item) {
         if(item.getType() == LogEventTypes.SERVICE_KEY) {
             int keyCode = ((LogServiceKey)item).getKeyCode();
-            if(keyCode == KeyEvent.VK_BACK_SPACE || keyCode == KeyEvent.VK_DELETE)
+            if(keyCode == KeyEvent.VK_DELETE)
+                return true;
+        }
+        return false;
+    }
+
+    private boolean isBackSpaceItem(LogItem item) {
+        if(item.getType() == LogEventTypes.SERVICE_KEY) {
+            int keyCode = ((LogServiceKey)item).getKeyCode();
+            if(keyCode == KeyEvent.VK_BACK_SPACE)
                 return true;
         }
         return false;
@@ -199,10 +222,7 @@ public class ParseUtil {
     }
 
     public void nextAction(JEditBuffer buffer) {
-        if(buffer.canRedo()) {
-            buffer.redo(textArea);
-        }
-        else if(iter.hasNext()) {
+        if(iter.hasNext()) {
             LinkedList<LogItem> itemsOneList;
             itemsOneList = iter.next();
             for(LogItem item : itemsOneList) {
@@ -219,75 +239,60 @@ public class ParseUtil {
         LogEventTypes type = item.getType();
         switch (type) {
             case SERVICE_KEY:
-                log.info("Вызывается SERVICE_KEY item = " + item + " Type = " + item.getType());
                 pressServiceKey((LogServiceKey)item);
                 break;
             case CHARACTER_KEY:
                 pressCharKey((LogCharacterKey)item);
                 break;
             case SELECTION:
-                //hasSelection = true;
+                hasSelection = true;
                 addSelection((LogSelection)item);
                 break;
-            /*case SELECTION_CLEAR:
-                //textArea.setSelection((Selection) null);
-                //hasSelection = false;
-                break;*/
+            case SELECTION_CLEAR:
+                textArea.setSelection((Selection) null);
+                JOptionPane.showMessageDialog(textArea, item.getStringForm(), "Current action:", JOptionPane.INFORMATION_MESSAGE);
+                hasSelection = false;
+                break;
             case PASTE_ACTION:
                 if (textArea.getSelection() == null) {
                     textArea.setCaretPosition(((LogPaste) item).getPosition());
                 }
+                Registers.setRegister('$', ((LogPaste)item).getText());
                 Registers.paste(textArea, '$', false);
                 //textArea.setCaretPosition(((LogPaste) item).getPosition());
                 break;
             case CUT_ACTION:
-                Registers.cut(textArea,'$');
+                textArea.setSelectedText("");
                 break;
             case COPY_ACTION:
-                Registers.copy(textArea,'$');
+                //Registers.copy(textArea,'$');
+                break;
+            case COMPILE_ACTION:
+                JOptionPane.showMessageDialog(textArea, ((LogCompile)item).getText(), "Результат компиляции", JOptionPane.INFORMATION_MESSAGE);
+                break;
+            case RUN_ACTION:
+                JOptionPane.showMessageDialog(textArea, ((LogRun)item).getText(), "Результат запуска", JOptionPane.INFORMATION_MESSAGE);
                 break;
             default:
                 JOptionPane.showMessageDialog(textArea, item.getStringForm(), "Current action:", JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
-    private boolean isFlagItem(LogItem item) {
-        LogEventTypes type = item.getType();
-        switch(type) {
-            case SERVICE_KEY:
-                int keyCode = ((LogServiceKey) item).getKeyCode();
-                if (keyCode >= KeyEvent.VK_LEFT && keyCode <= KeyEvent.VK_DOWN ||
-                        keyCode == KeyEvent.VK_BACK_SPACE || keyCode == KeyEvent.VK_DELETE) {
-                    return true;
-                }
-                break;
-            case SELECTION:
-                return true;
-            case SELECTION_CLEAR:
-                return true;
-            case CUT_ACTION:
-                return true;
-            case COPY_ACTION:
-                return true;
-            case PASTE_ACTION:
-                return true;
-        }
-        return false;
-    }
-
-    private void pressCharKey(LogCharacterKey item) throws AWTException {
-        final Robot robot = new Robot();
-
-        //textArea.setMagicCaretPosition(item.getPosition());
-        ensurePosition(item.getPosition());
-        if (isShiftRequired(item)) { //Emulate characters with pressed shift
-            robot.keyPress(KeyEvent.VK_SHIFT);
-            robot.keyPress(item.getKeyCode());
-            robot.keyRelease(item.getKeyCode());
-            robot.keyRelease(KeyEvent.VK_SHIFT);
-        } else {
-            robot.keyPress(item.getKeyCode());
-            robot.keyRelease(item.getKeyCode());
+    private void pressCharKey(LogCharacterKey item) {
+        try {
+            final Robot robot = new Robot();
+            ensurePosition(item.getPosition());
+            if (isShiftRequired(item)) { //Emulate characters with pressed shift
+                robot.keyPress(KeyEvent.VK_SHIFT);
+                robot.keyPress(item.getKeyCode());
+                robot.keyRelease(item.getKeyCode());
+                robot.keyRelease(KeyEvent.VK_SHIFT);
+            } else {
+                robot.keyPress(item.getKeyCode());
+                robot.keyRelease(item.getKeyCode());
+            }
+        } catch (AWTException e) {
+            e.printStackTrace();
         }
     }
 
@@ -298,12 +303,9 @@ public class ParseUtil {
 
     private void pressServiceKey(LogServiceKey item) throws AWTException {
         final Robot robot = new Robot();
-        //textArea.setFocusable(false);
-        //textArea.setMagicCaretPosition(item.getPosition());
-        if (!isMovingCursorType(item) && !isDeleteItem(item)) {
+        if (!isMovingCursorType(item) && !isDeleteItem(item) && !isBackSpaceItem(item)) {
             ensurePosition(item.getPosition());
         }
-        //ensurePosition(getCaretForServiceKey((LogServiceKey)current));
         robot.keyPress(item.getKeyCode());
         robot.keyRelease(item.getKeyCode());
 
@@ -311,73 +313,168 @@ public class ParseUtil {
 
     private void ensurePosition(int position) {
         int bufferLength = textArea.getBufferLength();
-        if (bufferLength <= position) {
+        if (bufferLength < position) {
             textArea.setCaretPosition(bufferLength);
         } else {
             textArea.setCaretPosition(position);
         }
     }
 
-    public void addSelection(LogSelection item) {
+    private void addSelection(LogSelection item) {
         textArea.setSelection(item.createSelection());
     }
 
     public void previousAction(JEditBuffer buffer) {
-        buffer.undo(textArea);
-        //iter.previous();
-        /*LinkedList<LogItem> itemsOneBlock = iter.previous();
-        LogItem item = itemsOneBlock.getFirst();
-        if(isTypesetting(item)) {
-            try {
-                Robot robot = new Robot();
-                int count = itemsOneBlock.size();
-                int caretLine = textArea.getCaretLine();
-                int indent;
-                //textArea.setCaretPosition(((LogKey)item).getPosition() + 1);
-                for (int i = 0; i < count; i++) {
-                    textArea.backspace();
-                    *//*robot.keyPress(KeyEvent.VK_BACK_SPACE);
-                    robot.keyRelease(KeyEvent.VK_BACK_SPACE);*//*
-                    if(caretLine > textArea.getCaretLine()) {
-                        indent = buffer.getIdealIndentForLine(caretLine);
-                        caretLine = textArea.getCaretLine();
-                        i -= indent;
-                    }
-                }
-            } catch (AWTException e) {
-                e.printStackTrace();
-            }
-        }*/
-        /*else if(isMovingCursorType(item)) {
-            if(((LogServiceKey)itemsOneBlock.getFirst()).getPosition() >= ((LogServiceKey)itemsOneBlock.getLast()).getPosition())
-                textArea.setCaretPosition(((LogServiceKey)item).getPosition() + 1);
-            else
-                textArea.setCaretPosition(((LogServiceKey)item).getPosition());
+        if(iter.hasPrevious()) {
+            LinkedList<LogItem> itemsOneList;
+            itemsOneList = iter.previous();
+            cancelProcess(itemsOneList);
+        }
+    }
+
+    private void cancelProcess (LinkedList<LogItem> itemsOneList) {
+        LogItem checkItem = itemsOneList.getFirst();
+
+        if(isTypesetting(checkItem)) {
+            canselTypesetting(itemsOneList);
+        }
+        else if(isMovingCursorType(checkItem)) {
+            canselMoving((LogServiceKey) checkItem);
+        }
+        else if(isBackSpaceItem(checkItem)) {
+            canselBackSpace(itemsOneList.size(), ((LogServiceKey)itemsOneList.getLast()).getPosition());
+        }
+        else if(isDeleteItem(checkItem)) {
+            canselDelete(itemsOneList.size(), ((LogServiceKey)itemsOneList.getFirst()).getPosition());
         }
         else {
-            try {
-                processItem(item);
-            } catch (AWTException e) {
-                e.printStackTrace();
+            LogEventTypes type = checkItem.getType();
+            switch (type) {
+                case SELECTION:
+                    textArea.setSelection((Selection) null);
+                    hasSelection = false;
+                    break;
+                case SELECTION_CLEAR:
+                    canselSelectionClear();
+                case CUT_ACTION:
+                    Registers.setRegister('$', ((LogCut)checkItem).getText());
+                    Registers.paste(textArea, '$');
+                    canselSelectionClear();
+                    break;
+                case PASTE_ACTION:
+                    canselPaste((LogPaste)checkItem);
+                    break;
+                case COMPILE_ACTION:
+                    JOptionPane.showMessageDialog(textArea, ((LogCompile)checkItem).getText(), "Результат компиляции", JOptionPane.INFORMATION_MESSAGE);
+                    break;
+                case RUN_ACTION:
+                    JOptionPane.showMessageDialog(textArea, ((LogRun)checkItem).getText(), "Результат запуска", JOptionPane.INFORMATION_MESSAGE);
+                    break;
+                default:
+                    JOptionPane.showMessageDialog(textArea, checkItem.getStringForm(), "Canceled action:", JOptionPane.INFORMATION_MESSAGE);
             }
-*/
-        /*if(isDeleteItem(item)) {
-            while(iter.hasPrevious()) {
-                LinkedList<LogItem> tempList = iter.previous();
-                LogItem temp = tempList.getFirst();
-                if(isTypesetting(temp)) {
-                    textArea.setCaretPosition(((LogKey)temp).getPosition());
-                    for (LogItem key : tempList) {
+        }
+    }
+
+    private void canselMoving(LogServiceKey item) {
+        int posFirstItem = item.getPosition();
+        int keyCode = item.getKeyCode();
+        switch (keyCode) {
+            case KeyEvent.VK_RIGHT:
+                ensurePosition(posFirstItem - 1);
+                break;
+            case KeyEvent.VK_LEFT:
+                ensurePosition(posFirstItem + 1);
+                break;
+            case KeyEvent.VK_DOWN:
+                textArea.goToPrevLine(false);
+                break;
+            case KeyEvent.VK_UP:
+                textArea.goToNextLine(false);
+                break;
+        }
+    }
+
+    private void canselSelectionClear() {
+        ListIterator<LinkedList<LogItem>> tempIter = iter;
+        LinkedList<LogItem> itemsOneList = tempIter.previous();
+        LogItem tempItem = itemsOneList.getFirst();
+        hasSelection = true;
+
+        while(tempItem.getType() != LogEventTypes.SELECTION) {
+            cancelProcess(itemsOneList);
+            itemsOneList = tempIter.previous();
+            tempItem = itemsOneList.getFirst();
+        }
+        addSelection((LogSelection)tempItem);
+    }
+
+    private void canselPaste(LogPaste item) {
+        String s = item.getText();
+        ensurePosition(item.getPosition() - s.length());
+
+        for (int i = 0; i < s.length(); i++) {
+            textArea.delete();
+        }
+
+        if(hasSelection) {
+            ListIterator<LinkedList<LogItem>> tempIter = iter;
+            LinkedList<LogItem> itemsOneList = tempIter.previous();
+            LogItem tempItem = itemsOneList.getFirst();
+
+            while (tempItem.getType() != LogEventTypes.SELECTION) {
+                cancelProcess(itemsOneList);
+                itemsOneList = tempIter.previous();
+                tempItem = itemsOneList.getFirst();
+            }
+
+            Registers.setRegister('$', ((LogSelection)tempItem).getText());
+            Registers.paste(textArea, '$');
+        }
+    }
+
+    private void canselBackSpace(int listSize, int endPosition)  {
+        ListIterator<LinkedList<LogItem>> tempIter = items.listIterator(iter.previousIndex());
+        LinkedList<LogItem> searchList = tempIter.next();
+        LogItem tempItem;
+
+        while(tempIter.hasPrevious()) {
+            tempItem = searchList.getFirst();
+            if (isTypesetting(tempItem)) {
+                for (LogItem item : searchList) {
+                    if (((LogKey) item).getPosition() == endPosition) {
+                        log.info("endPosition" + endPosition);
+                        log.info("search item = " + item.getStringForm());
                         try {
-                            processItem(key);
+                            processItem(item);
                         } catch (AWTException e) {
                             e.printStackTrace();
                         }
+                        log.info("Carret position after pressCharKey = " + textArea.getCaretPosition());
+                        endPosition++;
+                        listSize--;
                     }
+
+                    if(listSize == 0)
+                        return;
                 }
             }
-        }*/
-        //}
+            searchList = tempIter.previous();
+        }
+    }
+
+    private void canselDelete(int listSize, int endPosition) {
+
+    }
+
+    private void canselTypesetting(LinkedList<LogItem> itemsOneList) {
+        int startPosition = ((LogKey)itemsOneList.getFirst()).getPosition();
+        int endPosition = ((LogKey)itemsOneList.getLast()).getPosition() + 1;
+        ensurePosition(endPosition);
+
+        for (int i = 0; i < endPosition - startPosition; i++) {
+            textArea.backspace();
+        }
     }
 }
 

@@ -1,13 +1,18 @@
 package org.log;
 
-public class LogCompile extends LogItem {
+public class LogCompile extends LogEdit {
 
-	public LogCompile() {
-		this.type = LogEventTypes.COMPILE_ACTION;
-	}
+    public LogCompile() {
+        super();
+    }
 
-	@Override
-	public String getStringForm() {
-		return super.getStringForm();
-	}
+    public LogCompile(final String text) {
+        super(text);
+        type = LogEventTypes.COMPILE_ACTION;
+    }
+
+    @Override
+    public String getStringForm() {
+        return super.getStringForm();
+    }
 }
